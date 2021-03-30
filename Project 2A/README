@@ -1,0 +1,60 @@
+NAME: Dhakshin Suriakannu
+EMAIL: bruindhakshin@g.ucla.edu
+ID: 605280083
+
+Files:
+
+1. lab2_add.c - Implements a shared variable to test an add function with a varied number of threads.
+2. SortdList.h - Header file for linkedlist
+3. SortedList.c - insert, delete, lookup, and length for circular linkedlist
+4. lab2_list.c - Runs varied number of threads to add to a list and delete items synchronously
+5. lab2_add.csv - output of lab2_add.c
+6. lab2_list.csv - output of lab2_list.c
+7. lab2_add.gp - Runs gnuplot on the data in lab2_add.csv 
+8. lab2_list.gp - Runs gnuplot on the data in lab2_list.csv
+
+QUESTION 2.1.1
+
+Many iterations are needed to see errors because if the number 
+of iterations is too small then each thread can execute in one time slice. 
+Therefore no thread is interrupted and race condition errors do not occur 
+that typically happen with multi threading takes place. Small iterations
+can also fail because the thread is can complete the entire function 
+within one time slice.
+
+QUESTION 2.1.2
+
+Yield is slow because it causes time to interrupt the current thread and switch to another.
+This is also where the additional time is going, because time is needed to switch threads.
+Since we don't know how long it takes to switch between threads, we cannot get valid per-operation timings.
+
+QUESTION 2.1.3
+
+The cost drops because with more iterations it is faster since we are able to compensate to minimize
+the overhead and time taken to change threads.
+Using the png files generated, we can see that cost per iteration decreases exponentially so the value that items
+approaches is the "correct" cost
+
+QUESTION 2.1.4
+
+For a low number of threads we don't see the impact of thread switch as much as we would with a large number
+of threads. Due to this all of the options perform similarly because there isn't enough data to tell.
+With more threads, the overhead of a thread waiting for lock to be released instead of doing an operation adds up overtime.
+
+QUESTION 2.2.1
+
+Part 1 shows that an increased thread number corresponds to an increased in time/cost per mutex-protected operation whereas
+part 2 shows that the thread number has to effect on time/cost per mutex-protected operation.
+The differences in an increasing curve in part1 and non increasing line in part 2 is because for a linked list mutex lock,
+less switching occurs because it stays locked longer and thus creating less overhead.
+
+QUESTION 2.2.2
+
+In part 2: When there is 1 thread, then the cost is the same between spin locks and mutexs. As the number of threads incease,
+the cost for spin lock increases whereas the cost for mutex stays the same. The gradient of the line for spin lock is >0 whereas 
+for mutex it is close to 0.
+
+In part 1: the trend of the spin lock being more than mutex is much stronger. 
+
+This is because using a spin wastes the CPU time because it just spins the whole time and is stuck. Using a lock is improves time 
+because the CPU will ignore anything that is detected as locked and will not waste time on it. It will only return when it is unlocked.

@@ -1,0 +1,14 @@
+NAME: Dhakshin Suriakannu
+EMAIL: bruindhakshin@g.ucla.edu
+ID: 605280083
+SLIPDAYS: 0
+
+The first test was to check if the program runs and exits with status code 0 if it is successful.
+
+The second test was to compare the input and output to check if they match.
+
+The third test was to use the --segfault and --catch flags and check to see if the exit code is 4.
+
+The fourth test was to use an invalid file for --input and check if the program catches it and exits with status code 2.
+
+The fifth test was to use a file with no writing permission for --output and check if the program catches it and exits with status code 3.

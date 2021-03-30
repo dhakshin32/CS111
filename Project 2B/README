@@ -1,0 +1,56 @@
+NAME: Dhakshin Suriakannu
+EMAIL: bruindhakshin@g.ucla.edu
+ID: 605280083
+
+Files:
+
+1. SortdList.h - Header file for linkedlist
+2. lab2_list.csv - output of lab2_list.c
+3. SortedList.c - insert, delete, lookup, and length for circular linkedlist
+4. lab2_list.c - Runs varied number of threads to add to a list and delete items synchronously
+5. lab2b_list.gp - Runs gnuplot on the data in lab2_list.csv
+6. Makefile: default, tests, graphs, profile, clean, dist
+7. README
+8. profile.out - execution profiling report
+
+QUESTION 2.3.1
+
+Since there are only 1 or 2 threads, synchronization is easy since locks aren't held up and are released quicker. Due to this, most of the time is probably
+spent doing the list functions like insert, delete, length, and lookup rather than waiting for a lock.
+
+In spin-lock parts of the code when there are a large number threads, most of the threads waste their time spinning since they are waiting for a lock.
+
+In mutex test parts of the code when there are a large number threads, most of the threads try to access a locked resource and therefore spend a lot of 
+their resources on expensive mutex operations.
+
+QUESTION 2.3.2
+
+while (__sync_lock_test_and_set(&lock[hash], 1));
+
+The above code consumes the most of the cycles when the spin-lock version of the list exerciser is run with a large number of threads.
+
+This operation becomes expensive with large numbers of threads, because the 
+increased number of threads creates more competition for CPU time. This means that many 
+cpu cycles are spent just spinning and waiting for a lock to be free (in order to protect the critical sections) which wastes the cycle.
+
+QUESTION 2.3.3
+
+With more threads, the time needed to wait on a resource to be free increases since the queue of waiting threads increases. When there is only 1 thread,
+there is no wait time and as the number of threads increases, this time also increases.
+
+The completion time rises less dramatically because all though threads are waiting on a locked resource, there is always one thread making proress using its
+resource so the completion time per operation rise is less dramatic.
+
+In my code, each thread is timed individually, so when the program is running, the wait time per operation goes up faster because sometimes multiple threads are waiting at the same time,
+causing a higher total wait time due to the overlap. In contrast, the completion time is only calculated in the parent thread and sinced there is only 1 parent thread there is no overlap with multiple threads
+like with wait time so the completion time per operation does not rise as quickly.
+
+QUESTION 2.3.4
+
+The performance of the synchronized methods increases as the number of lists increases.
+
+The throughput will increase until a certain point and then it will plateau off. This plateau is reached when each element has its own sub list which will allow every thread to execute without
+waiting for a resource. So even if we increase the number of lists at this point, it will not have any effect on the throughput.
+
+This claim is somewhat true because some parts of the curves align with each other suggesting that that the throughput of an N-way partitioned list should be equivalent
+to the throughput of a single list with fewer (1/N) threads

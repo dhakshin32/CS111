@@ -1,0 +1,36 @@
+NAME: Dhakshin Suriakannu
+EMAIL: bruindhakshin@g.ucla.edu
+ID: 605280083
+
+README
+CS 111 Project1B
+
+Files included:
+
+
+Makefile
+Targets:
+default: builds both the lab1b-server and lab1b-client executables
+clean: delete all files created by the Makefile including lab1b-605280083.tar.gz lab1b-client lab1b-server
+server: builds only lab1b-server
+client: builds only lab1b-client
+dist: build the distribution tarball
+
+lab1b-client.c
+Requires --port=portnumber. Modies terminal and connets to a server specified using port to open a new remote shell. Client outputs data from server process.
+
+Other flags:
+--compress: enables compression of data 
+--log=filename: creates a log file to monitor sent and recieved data
+
+
+lab1b-server.c
+requires: --port=portnumber. The server program will spawn a shell and receive commands from the client, forward them to the shell, and forward 
+the output of the shell back to the client through a socket (port specified with the mandatory --port= command line parameter).
+
+
+Other flags:
+--compress: enables compression of data
+
+Testing
+testing done on seasnet using sanity check

@@ -1,0 +1,169 @@
+Total: 275 samples
+     242  88.0%  88.0%      270  98.2% thread_worker
+       8   2.9%  90.9%        8   2.9% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:204
+       6   2.2%  93.1%        6   2.2% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:1734
+       5   1.8%  94.9%        5   1.8% getKey
+       3   1.1%  96.0%        3   1.1% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:1734
+       2   0.7%  96.7%        2   0.7% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:206
+       2   0.7%  97.5%       19   6.9% SortedList_insert
+       1   0.4%  97.8%        1   0.4% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:164
+       1   0.4%  98.2%        1   0.4% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:203
+       1   0.4%  98.5%        1   0.4% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:221
+       1   0.4%  98.9%        1   0.4% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:1733
+       1   0.4%  99.3%        1   0.4% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:1734
+       1   0.4%  99.6%        1   0.4% 0x00007fff387f67a8
+       1   0.4% 100.0%        8   2.9% SortedList_lookup
+       0   0.0% 100.0%      270  98.2% ?? /usr/src/debug////////glibc-2.17-c758a686/misc/../sysdeps/unix/sysv/linux/x86_64/clone.S:118
+       0   0.0% 100.0%        1   0.4% __GI___clock_gettime
+       0   0.0% 100.0%        5   1.8% __libc_start_main
+       0   0.0% 100.0%        5   1.8% _start
+       0   0.0% 100.0%        5   1.8% main
+       0   0.0% 100.0%      270  98.2% start_thread
+ROUTINE ====================== thread_worker in /u/cs/ugrad/shrea/dhakshin/proj2b/lab2_list.c
+   242    270 Total samples (flat / cumulative)
+     .      .   81: 
+     .      .   82: unsigned int hashkey(const char* key) {
+     .      .   83:  	return key[0]%lists;
+     .      .   84: }
+     .      .   85: 
+---
+     .      .   86: void * thread_worker(void *ptr) {
+     .      .   87:     long time = 0;
+     .      .   88: 	struct timespec start, end;
+     .      .   89:     SortedListElement_t* arr_elements = ptr;
+     .      .   90:     
+     .      .   91:     for (long i = 0; i < iterations; i++){
+     .      .   92:         unsigned int hash = hashkey( arr_elements[i].key);
+     .      .   93:         clock_gettime(CLOCK_MONOTONIC, &start);
+     .      .   94:          if (sync_char == 'm') {
+     .      .   95:         	pthread_mutex_lock(&m_lock[hash]);
+     .      .   96:     	} else if (sync_char == 's') {
+   222    222   97:         	while (__sync_lock_test_and_set(&lock[hash], 1));
+     .      .   98:     	}
+     .      1   99:         clock_gettime(CLOCK_MONOTONIC, &end);
+     .      .  100:         time += 1000000000L * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec;
+     .     19  101:         SortedList_insert(&listhead[hash], (SortedListElement_t *) &arr_elements[i]); //insert element
+     .      .  102: 
+     .      .  103:         if (sync_char == 'm') { // unlock the mutex
+     .      .  104:         pthread_mutex_unlock(&m_lock[hash]);
+     .      .  105: 	} else if (sync_char == 's') { // release lock
+     .      .  106:        	__sync_lock_release(&lock[hash]);
+     .      .  107:     }
+     .      .  108:     } 
+     .      .  109:     long len=0;
+     .      .  110:     for (long i = 0; i < lists; i++) {
+     .      .  111:     		len += SortedList_length(&listhead[i]);
+     .      .  112: 	}
+     .      .  113:     
+     .      .  114:     if(len<iterations){
+     .      .  115:         fprintf(stderr,"Not all elements were inserted!");
+     .      .  116:         exit(2);
+     .      .  117:     }
+     .      .  118:     for (long i = 0; i <iterations; i++) {
+     .      .  119:         unsigned int hash = hashkey( arr_elements[i].key);
+     .      .  120:         clock_gettime(CLOCK_MONOTONIC, &start);
+     .      .  121:          if (sync_char == 'm') {
+     .      .  122:         	pthread_mutex_lock(&m_lock[hash]);
+     .      .  123:     	} else if (sync_char == 's') {
+    20     20  124:         	while (__sync_lock_test_and_set(&lock[hash], 1));
+     .      .  125:     	}
+     .      .  126:         clock_gettime(CLOCK_MONOTONIC, &end);
+     .      .  127:         time += 1000000000L * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec;
+     .      8  128:         SortedListElement_t *e = SortedList_lookup(&listhead[hash], (char *)((arr_elements[i]).key)); //lookup inserted element
+     .      .  129:         if(e==NULL){
+     .      .  130:             fprintf(stderr, "Cannot find element");
+     .      .  131:             exit(2);
+     .      .  132:         }
+     .      .  133:         int x = SortedList_delete(e); //remove inserted element
+     .      .  134:         if(x==1){
+     .      .  135:             fprintf(stderr, "Cannot delete element");
+     .      .  136:             exit(2);
+     .      .  137:         }
+     .      .  138:         if (sync_char == 'm') { // unlock the mutex
+     .      .  139:         pthread_mutex_unlock(&m_lock[hash]);
+     .      .  140: 	} else if (sync_char == 's') { // release lock
+     .      .  141:        	__sync_lock_release(&lock[hash]);
+     .      .  142:     }
+     .      .  143:     }
+     .      .  144:     return (void *)time;
+     .      .  145: }
+---
+     .      .  146: 
+     .      .  147: void signal_handler(int sig){
+     .      .  148:     if(sig == SIGSEGV){
+     .      .  149:         fprintf(stderr,"Segfault\n");
+     .      .  150:         exit(1);
+ROUTINE ====================== thread_worker in /u/cs/ugrad/shrea/dhakshin/proj2b/lab2_list.c
+   242    270 Total samples (flat / cumulative)
+     .      .   81: 
+     .      .   82: unsigned int hashkey(const char* key) {
+     .      .   83:  	return key[0]%lists;
+     .      .   84: }
+     .      .   85: 
+---
+     .      .   86: void * thread_worker(void *ptr) {
+     .      .   87:     long time = 0;
+     .      .   88: 	struct timespec start, end;
+     .      .   89:     SortedListElement_t* arr_elements = ptr;
+     .      .   90:     
+     .      .   91:     for (long i = 0; i < iterations; i++){
+     .      .   92:         unsigned int hash = hashkey( arr_elements[i].key);
+     .      .   93:         clock_gettime(CLOCK_MONOTONIC, &start);
+     .      .   94:          if (sync_char == 'm') {
+     .      .   95:         	pthread_mutex_lock(&m_lock[hash]);
+     .      .   96:     	} else if (sync_char == 's') {
+   222    222   97:         	while (__sync_lock_test_and_set(&lock[hash], 1));
+     .      .   98:     	}
+     .      1   99:         clock_gettime(CLOCK_MONOTONIC, &end);
+     .      .  100:         time += 1000000000L * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec;
+     .     19  101:         SortedList_insert(&listhead[hash], (SortedListElement_t *) &arr_elements[i]); //insert element
+     .      .  102: 
+     .      .  103:         if (sync_char == 'm') { // unlock the mutex
+     .      .  104:         pthread_mutex_unlock(&m_lock[hash]);
+     .      .  105: 	} else if (sync_char == 's') { // release lock
+     .      .  106:        	__sync_lock_release(&lock[hash]);
+     .      .  107:     }
+     .      .  108:     } 
+     .      .  109:     long len=0;
+     .      .  110:     for (long i = 0; i < lists; i++) {
+     .      .  111:     		len += SortedList_length(&listhead[i]);
+     .      .  112: 	}
+     .      .  113:     
+     .      .  114:     if(len<iterations){
+     .      .  115:         fprintf(stderr,"Not all elements were inserted!");
+     .      .  116:         exit(2);
+     .      .  117:     }
+     .      .  118:     for (long i = 0; i <iterations; i++) {
+     .      .  119:         unsigned int hash = hashkey( arr_elements[i].key);
+     .      .  120:         clock_gettime(CLOCK_MONOTONIC, &start);
+     .      .  121:          if (sync_char == 'm') {
+     .      .  122:         	pthread_mutex_lock(&m_lock[hash]);
+     .      .  123:     	} else if (sync_char == 's') {
+    20     20  124:         	while (__sync_lock_test_and_set(&lock[hash], 1));
+     .      .  125:     	}
+     .      .  126:         clock_gettime(CLOCK_MONOTONIC, &end);
+     .      .  127:         time += 1000000000L * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec;
+     .      8  128:         SortedListElement_t *e = SortedList_lookup(&listhead[hash], (char *)((arr_elements[i]).key)); //lookup inserted element
+     .      .  129:         if(e==NULL){
+     .      .  130:             fprintf(stderr, "Cannot find element");
+     .      .  131:             exit(2);
+     .      .  132:         }
+     .      .  133:         int x = SortedList_delete(e); //remove inserted element
+     .      .  134:         if(x==1){
+     .      .  135:             fprintf(stderr, "Cannot delete element");
+     .      .  136:             exit(2);
+     .      .  137:         }
+     .      .  138:         if (sync_char == 'm') { // unlock the mutex
+     .      .  139:         pthread_mutex_unlock(&m_lock[hash]);
+     .      .  140: 	} else if (sync_char == 's') { // release lock
+     .      .  141:        	__sync_lock_release(&lock[hash]);
+     .      .  142:     }
+     .      .  143:     }
+     .      .  144:     return (void *)time;
+     .      .  145: }
+---
+     .      .  146: 
+     .      .  147: void signal_handler(int sig){
+     .      .  148:     if(sig == SIGSEGV){
+     .      .  149:         fprintf(stderr,"Segfault\n");
+     .      .  150:         exit(1);

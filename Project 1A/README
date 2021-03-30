@@ -1,0 +1,7 @@
+NAME:Dhakshin Suriakannu
+EMAIL:bruindhakshin@g.ucla.edu
+ID:605280083
+
+Makefile supports default, which makes the executable, clean, which removes the tar file, and dist, which creates the tarfile.
+
+lab1a.c is the c file for the program

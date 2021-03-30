@@ -1,0 +1,9 @@
+#NAME: Shrea Chari
+#EMAIL: shreachari@gmail.com
+#ID: 005318456
+#NAME: Dhakshin Suriakannu
+#EMAIL: dhakshin.s@g.ucla.edu
+#ID: 605280083
+
+python lab3b.py $1
+exit $?
